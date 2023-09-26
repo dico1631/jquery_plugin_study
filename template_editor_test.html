@@ -1,0 +1,89 @@
+<html>
+	<head>
+		<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+		<script>
+			(function($, document, window, undefined) {
+				"use strict";
+
+				const pluginName = "TemplateEditor";
+
+				const defaults = {
+				};
+
+				function Plugin(element, options) {
+					this.element = element;
+					this.options = $.extend({}, defaults, options);
+					console.log(this.options);
+					// [data-template-edit-root]인 HTML을 jquery 객체로 변환하여, 매번 $()를 하지 않아도 되도록 축약형을 만듦
+					this.$el = $(element);
+					this._defaults = defaults;
+					this.init();
+				}
+
+				Plugin.prototype = {
+					init : function() {
+						this.addElement();
+						this.removeElement();
+					},
+
+					addElement : function(){
+						const plugin = this;
+
+						$("[data-template-add-element]").click(function(){
+							plugin.$el.append(plugin.options.append);
+						});
+					},
+
+					removeElement : function(){
+						const plugin = this;
+
+						$("[data-template-remove-element]").click(function(){
+							$(plugin.options.remove).remove();
+						});
+					},
+				};
+
+				// options: 플러그인에 넘어오는 object 정보, 플러그인 커스텀할 때 쓰이는 정보
+				$.fn[pluginName] = function(options) {
+					// this: $("[data-template-edit-root]")
+					return this.each(function() {
+						// jQuery에 "plugin_" + pluginName을 key값으로 하는 데이터가 없으면
+						// this: html 태그
+						if (!$.data(this, "plugin_" + pluginName)) {
+							// { "plugin_TemplateEditor" : Plugin 인스턴스  }
+							$.data(this, "plugin_" + pluginName, new Plugin(this,
+									options));
+						}
+					});
+				};
+
+			})(jQuery, document, window);
+		</script>
+
+		<script>
+			$(function(){
+				$("[data-template-edit-root]").TemplateEditor({
+					"append" : '<div class="appendBx"></div>',
+					"remove" : '.appendBx:last-child',
+				});
+			});
+
+		</script>
+		<style>
+			body{display: inline-flex; flex-direction: column; padding: 50px 0 0 50px;}
+
+			.btn{display: inline-block; width: 50px;}
+			.btnBx{flex-direction: row; margin: 0 0 10px 0;}
+			.appendBx{display: inline-block; width: 50px; height: 50px; box-sizing: border-box; background-color: aquamarine; border: 1px solid black}
+			.main{display: inline-block; width: 502px; height: 502px; box-sizing: border-box; background-color: #ddd; border: 1px solid #555; border-radius: 5px;}
+		</style>
+	</head>
+	<body>
+		<div class="btnBx">
+			<button type="button" class="btn" data-template-add-element>추가</button>
+			<button type="button" class="btn" data-template-remove-element>삭제</button>
+		</div>
+
+		<div class="main" data-template-edit-root></div>
+	</body>
+</html>
